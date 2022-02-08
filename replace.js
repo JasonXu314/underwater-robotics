@@ -10,8 +10,9 @@ function findByText(root, text) {
 
 	// root.nodeType = 3 would mean that the node is a text node (see https://developer.mozilla.org/en-US/docs/Web/API/Node)
 	// and therefore doesn't have attributes
+	// root.nodeType = 8 is a comment node
 	// Note: If there are exceptions (ie. other nodes without attributes) then they can also be excluded (but idk any as of right now)
-	if (root.nodeType !== 3 && root.hasAttributes()) {
+	if (root.nodeType !== 3 && root.nodeType !== 8 && root.hasAttributes()) {
 		for (const attr of root.getAttributeNames()) {
 			if (root.getAttribute(attr).includes(text)) {
 				match.attrs.push(attr);
