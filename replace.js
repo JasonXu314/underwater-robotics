@@ -32,6 +32,18 @@ function findByText(root, text) {
 	return out;
 }
 
+function addSuffix(place) {
+	if (place % 10 === 1 && place % 100 !== 11) {
+		return place + 'st';
+	} else if (place % 10 === 2 && place % 100 !== 12) {
+		return place + 'nd';
+	} else if (place % 10 === 3 && place % 100 !== 13) {
+		return place + 'rd';
+	} else {
+		return place + 'th';
+	}
+}
+
 for (const tag in globalNames) {
 	const matches = findByText(document.body, tag);
 	matches.forEach(({ elem, attrs }) => {
@@ -44,4 +56,32 @@ for (const tag in globalNames) {
 			});
 		}
 	});
+}
+
+function sleep(millis) {
+	return new Promise((resolve) => {
+		setTimeout(resolve, millis);
+	});
+}
+
+function fetchAndReplace() {
+	new Promise((resolve) => {
+		axios.get('https://charitable-chads-bot.herokuapp.com/scraper/nums').then((res) => {
+			const { goal, raised, donors } = res.data;
+
+			const [{ elem }] = findByText(document.body, '$PROGRESS$');
+
+			elem.textContent = elem.textContent
+				.replace('$PROGRESS$', raised)
+				.replace('$GOAL$', goal)
+				.replace('$DONATION_PLACE$', addSuffix(donors + 1));
+			resolve();
+		});
+	}).then(() => {
+		sleep(5000).then(fetchAndReplace);
+	});
+}
+
+if (location.pathname.includes('crowdfunding')) {
+	fetchAndReplace();
 }
